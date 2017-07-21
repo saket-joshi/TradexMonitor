@@ -1,0 +1,42 @@
+{
+  "name": "myeventplanner",
+  "description": "Application for planning events online",
+  "main": "server.js",
+  "authors": [
+    "Saket Joshi"
+  ],
+  "license": "MIT",
+  "keywords": [
+    "events",
+    "planning",
+    "online",
+    "reservation",
+    "hotels",
+    "booking"
+  ],
+  "homepage": "",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular": "^1.6.4",
+    "semantic": "semantic-ui#^2.2.10",
+    "angular-route": "^1.6.4",
+    "jquery": "^3.2.1",
+    "semantic-ui-popup": "^2.2.10"
+  },
+  "overrides": {
+    "semantic": {
+      "main": [
+        "src/semantic.less",
+        "dist/semantic.js",
+        "dist/semantic.css"
+      ]
+    }
+  }
+}

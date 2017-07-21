@@ -1,0 +1,31 @@
+<div class="messages-container" ng-show="messages && messages.length > 0">
+    {{messages}}
+</div>
+<div class="currency-convert">
+    <div id="source-currency">
+        <select ng-model="exchangeParams.srcId" ng-options="c.id as c.name for c in currencies.src">
+            <option value="">Select source currency</option>
+        </select>
+    </div>
+
+    <div id="destination-currency">
+        <select ng-model="exchangeParams.destId" ng-options="c.id as c.name for c in currencies.dest">
+            <option value="">Select destination currency</option>
+        </select>
+    </div>
+
+    <div class="convert-button">
+        <span>
+            <button type="button" class="button" ng-click="getExchangeRate();">Get Exchange Rate</button>
+        </span>
+        <span ng-show="false">
+            <div class="ui small indeterminate active inline loader"></div>
+        </span>
+    </div>
+
+    <div class="exchange-rate-container" ng-if="exchangeRate">
+        <span>1 {{exchangeParams.srcId}}</span>
+        <img src="" alt="exchange-icon"/>
+        <span>{{exchangeRate|currency: ""}} {{exchangeParams.destId}}</span>
+    </div>
+</div>

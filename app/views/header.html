@@ -1,0 +1,23 @@
+<div class="app-header">
+    <div class="navbar">
+        <div class="login-signup-btn">
+            <span ng-if="!sessionId">
+                <button ng-click="popupLogin();">Login to account</button>
+            </span>
+        </div>
+    </div>
+
+    <div class="login-popup">
+        <div>
+            <label for="username">Username</label>
+            <input type="text" id="username" ng-model="sessionInfo.username"></input>
+        </div>
+        <div>
+            <label for="password">Password</label>
+            <input type="text" id="password" ng-model="sessionInfo.password"></input>
+        </div>
+        <div>
+            <button ng-click="login();">Log in</button>
+        </div>
+    </div>
+</div>

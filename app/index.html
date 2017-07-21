@@ -1,0 +1,35 @@
+<html>
+    <head>
+        <!-- bower:css -->
+        <link rel="stylesheet" href="bower_components/semantic/dist/semantic.css" />
+        <link rel="stylesheet" href="bower_components/semantic-ui-popup/popup.css" />
+        <!-- endbower -->
+        <link rel="stylesheet" href="app.css"/>
+    </head>
+
+    <body ng-app="currencyTicker" ng-controller="TickerController" ng-cloak>
+        <div class="section header">
+            <div ng-include="'views/header.html'"></div>
+        </div>
+
+        <div class="section content">
+            <ng-view></ng-view>
+        </div>
+
+        <div class="section footer">
+            <div ng-include="'views/footer.html'"></div>
+        </div>
+    </body>
+
+    <!-- bower:js -->
+    <script src="bower_components/angular/angular.js"></script>
+    <script src="bower_components/jquery/dist/jquery.js"></script>
+    <script src="bower_components/semantic/dist/semantic.js"></script>
+    <script src="bower_components/angular-route/angular-route.js"></script>
+    <!-- endbower -->
+    <script src="app.js"></script>
+    <script src="app.utils.js"></script>
+    <script src="app.factory.js"></script>
+    <script src="app.controller.js"></script>
+    <script src="views/homeController.js"></script>
+</html>

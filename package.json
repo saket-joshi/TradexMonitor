@@ -1,0 +1,32 @@
+{
+  "name": "bitcoin_ticker",
+  "version": "1.0.0",
+  "description": "Bitcoin ticker app for my own monitoring to show the cryptocurrency exchange rates",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "bitcoin",
+    "ticker",
+    "cryptocurrency",
+    "ethereum"
+  ],
+  "author": "https://github.com/saket-joshi",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "body-parser": "^1.17.2",
+    "express": "^4.15.3",
+    "jsforce": "^1.8.0",
+    "path": "^0.12.7"
+  },
+  "devDependencies": {
+    "grunt": "^1.0.1",
+    "grunt-contrib-compass": "^1.1.1",
+    "grunt-contrib-sass": "^1.0.0",
+    "grunt-contrib-uglify": "^3.0.1",
+    "grunt-contrib-watch": "^1.0.0",
+    "grunt-express-server": "^0.5.3",
+    "grunt-nodemon": "^0.4.2"
+  }
+}
