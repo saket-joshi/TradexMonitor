@@ -1,0 +1,15 @@
+.section.header .ui.vertical.menu {
+    width: 20rem;
+}
+.section.header i.icon, i.icons {
+    font-size: 1.25em;
+}
+.section.header .menu .content > * {
+    margin: 0 0.5rem;
+}
+.section.header .menu .dropdown > .icon::before {
+    content: "\f0da";
+}
+.section.header .menu .ui.left.pointing.dropdown > .menu {
+    margin: -1em 0em 0em 4em;
+}
