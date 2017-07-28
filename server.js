@@ -12,9 +12,12 @@ var bodyParser = require("body-parser");
 var cookieParser = require("cookie-parser");
 var express = require("express");
 var jsforce = require("jsforce");
+var https = require("https");
 var app = express();
 
 var __jsCache = {};
+
+var COINBASE_API_ENDPOINT = "https://api.coinbase.com/v2/";
 
 // Make available the app folder
 app.use(express.static(path.join(__dirname, "app")));
@@ -37,17 +40,56 @@ var returnJson = function (req, res, errors, result) {
     else respondSuccess(req, res, result);
 }
 
-var respondFailure = function (req, res, errors) {
+var respondFailure = function (req, res, errors, isJson) {
     // @TODO: Implement response for errors
     console.error(errors);
+    res.setHeader("Content-Type", "application/json");
     res.status(400);
-    res.send(JSON.stringify(errors));
+    
+    if (!isJson) {
+        res.send(JSON.stringify(errors));
+    } else {
+        res.send(errors);
+    }
 }
 
-var respondSuccess = function (req, res, result) {
+var respondSuccess = function (req, res, result, isJson) {
     res.status(200);
-    res.send(JSON.stringify(result));
+    res.setHeader("Content-Type", "application/json");
+    
+    if (!isJson) {
+        res.send(JSON.stringify(result));
+    } else {
+        res.send(result);
+    }
 }
+
+// Setup the endpoint for coinbase currencies
+app.get("/coinbase/currencies", function (req, res) {
+    var request = https.get(COINBASE_API_ENDPOINT + "currencies", function (response) {
+        var successResponse = "", errorResponse;
+        response.setEncoding('utf8');
+        
+        // Chunk here is nothing but the response data in plain text
+        // so create a string out of that response to get final JSON string
+        response.on("data", function (chunk) {
+            successResponse += chunk;
+        });
+
+        response.on("error", function(err) {
+            errorResponse = err;
+        });
+
+        // Add this listener to indicate the complete response arrival
+        response.on("end", function () {
+            if (errorResponse) {
+                respondFailure(req, res, errorResponse, true);
+            } else {
+                respondSuccess(req, res, successResponse, true);
+            }
+        })
+    });
+});
 
 // Setup the library for Salesforce connection
 var connection = function (req) {

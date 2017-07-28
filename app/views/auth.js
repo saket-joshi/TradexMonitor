@@ -44,8 +44,6 @@ app.controller("authCallbackCtrl", [ "$scope", "$location", "$cookies", function
         $cookies.put("SF_ACCESS_TOKEN", params.access_token);
         $cookies.put("SF_INSTANCE_URL", params.instance_url);
 
-        console.log(params.access_token, params.instance_url);
-
         // Navigate to the home page again
         $location.hash("");
         $location.path("/");

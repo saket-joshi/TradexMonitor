@@ -1,8 +1,8 @@
 app.factory("requestFactory", ["$http", function($http) {
 
-    var COINBASE_ENDPOINT = "https://api.coinbase.com/v2/";
+    var COINBASE_ENDPOINT = "/coinbase/";
     var SF_META_URL = "/services/meta/";
-    var SF_DATA_URL = "/services/data";
+    var SF_DATA_URL = "/services/data/";
 
     var client_id = "3MVG9d8..z.hDcPLlRr8GWxQufOOqwjkXqhGkuh8bc67.Txbf2egAgCv34cSLWA8lU76NQR7rxWEEmSxmaJJ.";
     var client_secret = "3354555950090244631";
