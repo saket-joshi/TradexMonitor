@@ -2,7 +2,7 @@
     <div class="navbar">
         <div class="login-signup-btn">
             <span ng-if="!sessionId">
-                <button ng-click="popupLogin();">Login to account</button>
+                <a ng-href="#!/login">Login to Salesforce</a>
             </span>
         </div>
     </div>
@@ -16,8 +16,7 @@
             <label for="password">Password</label>
             <input type="text" id="password" ng-model="sessionInfo.password"></input>
         </div>
-        <div>
-            <button ng-click="login();">Log in</button>
-        </div>
     </div>
+
+    <button ng-click="getDescribe();">Describe</button>
 </div>

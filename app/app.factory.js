@@ -1,8 +1,8 @@
 app.factory("requestFactory", ["$http", function($http) {
 
-    var coinbase_endpoint = "";
-    var sf_endpoint_prod = "https://login.salesforce.com";
-    var sf_endpoint_test = "https://test.salesforce.com";
+    var COINBASE_ENDPOINT = "https://api.coinbase.com/v2/";
+    var SF_META_URL = "/services/meta/";
+    var SF_DATA_URL = "/services/data";
 
     var client_id = "3MVG9d8..z.hDcPLlRr8GWxQufOOqwjkXqhGkuh8bc67.Txbf2egAgCv34cSLWA8lU76NQR7rxWEEmSxmaJJ.";
     var client_secret = "3354555950090244631";
@@ -12,7 +12,7 @@ app.factory("requestFactory", ["$http", function($http) {
     requestFactory.getAllCurrency = function() {
         var request = {
             method: "GET",
-            url: coinbase_endpoint + "currencies"
+            url: COINBASE_ENDPOINT + "currencies"
         };
 
         return $http(request);
@@ -21,7 +21,7 @@ app.factory("requestFactory", ["$http", function($http) {
     requestFactory.getExchange = function (srcCurrency) {
         var request = {
             method: "GET",
-            url: coinbase_endpoint + "exchange-rates",
+            url: COINBASE_ENDPOINT + "exchange-rates",
             params: {
                 currency: srcCurrency
             }
@@ -30,13 +30,11 @@ app.factory("requestFactory", ["$http", function($http) {
         return $http(request);
     },
 
-    requestFactory.loginToSf = function (username, password, isTestUrl) {
+    requestFactory.describe = function () {
         var request = {
-            method: "POST",
-            url: isTestUrl == true ? sf_endpoint_test : sf_endpoint_prod,
-            data: {
-                body: "grant_type=password&client_id=" + client_id + "&client_secret=" + client_secret + "&username=" + username + "&password=" + password
-            }
+            method: "GET",
+            url: SF_META_URL + "describe",
+            withCredentials: true
         };
 
         return $http(request);

@@ -25,8 +25,8 @@ app.controller("TickerController", ["$scope", "requestFactory", function ($scope
         return $scope.messages.splice(id, 1);
     }
 
-    $scope.login = function () {
-        requestFactory.loginToSf($scope.sessionInfo.username, $scope.sessionInfo.password, false)
+    $scope.getDescribe = function () {
+        requestFactory.describe()
             .then(function (res) {
                 console.log(res);
             });
