@@ -36,6 +36,7 @@ app.listen(3000, function() {
 
 // Utility method to simplify request and response
 var returnJson = function (req, res, errors, result) {
+    res.setHeader("Content-Type", "application/json");
     if (errors) respondFailure(req, res, errors);
     else respondSuccess(req, res, result);
 }
@@ -43,7 +44,6 @@ var returnJson = function (req, res, errors, result) {
 var respondFailure = function (req, res, errors, isJson) {
     // @TODO: Implement response for errors
     console.error(errors);
-    res.setHeader("Content-Type", "application/json");
     res.status(400);
     
     if (!isJson) {
@@ -55,7 +55,6 @@ var respondFailure = function (req, res, errors, isJson) {
 
 var respondSuccess = function (req, res, result, isJson) {
     res.status(200);
-    res.setHeader("Content-Type", "application/json");
     
     if (!isJson) {
         res.send(JSON.stringify(result));
@@ -64,30 +63,69 @@ var respondSuccess = function (req, res, result, isJson) {
     }
 }
 
+// Handler for responding to server (direct nodejs) requests
+var respondServer = function (req, res, serverResponse) {
+    var successResponse = "", errorResponse;
+    serverResponse.setEncoding('utf8');
+    
+    // Chunk here is nothing but the response data in plain text
+    // so create a string out of that response to get final JSON string
+    serverResponse.on("data", function (chunk) {
+        successResponse += chunk;
+    });
+
+    serverResponse.on("error", function(err) {
+        errorResponse = err;
+    });
+
+    // Add this listener to indicate the complete response arrival
+    serverResponse.on("end", function () {
+        res.setHeader("Content-Type", "application/json");
+        if (errorResponse) {
+            res.setHeader("X-Coinbase-Error", true);
+            respondFailure(req, res, errorResponse, true);
+        } else {
+            
+            // If this is an error from coinbase, then specify
+            if (JSON.parse(successResponse).errors) {
+                res.setHeader("X-Coinbase-Error", true);
+                return respondFailure(req, res, successResponse, true);
+            }
+
+            respondSuccess(req, res, successResponse, true);
+        }
+    });
+}
+
 // Setup the endpoint for coinbase currencies
 app.get("/coinbase/currencies", function (req, res) {
-    var request = https.get(COINBASE_API_ENDPOINT + "currencies", function (response) {
-        var successResponse = "", errorResponse;
-        response.setEncoding('utf8');
-        
-        // Chunk here is nothing but the response data in plain text
-        // so create a string out of that response to get final JSON string
-        response.on("data", function (chunk) {
-            successResponse += chunk;
-        });
+    var endpoint = COINBASE_API_ENDPOINT + "currencies";
+    var request = https.get(endpoint , function (response) {
+        respondServer(req, res, response);
+    });
+});
 
-        response.on("error", function(err) {
-            errorResponse = err;
-        });
+// Setup the endpoint for coinbase exchange rates
+app.get("/coinbase/exchange", function (req, res) {
+    var endpoint = COINBASE_API_ENDPOINT + "exchange-rates?currency=" + req.query.src;
+    var request = https.get(endpoint, function (response) {
+        respondServer(req, res, response);
+    });
+});
 
-        // Add this listener to indicate the complete response arrival
-        response.on("end", function () {
-            if (errorResponse) {
-                respondFailure(req, res, errorResponse, true);
-            } else {
-                respondSuccess(req, res, successResponse, true);
-            }
-        })
+// Setup the endpoint for coinbase buy rates
+app.get("/coinbase/buy", function (req, res) {
+    var endpoint = COINBASE_API_ENDPOINT + "prices/" + req.query.buy + "-" + req.query.base + "/buy";
+    var request = https.get(endpoint, function (response) {
+        respondServer(req, res, response);
+    });
+});
+
+// Setup the endpoint for coinbase sell rates
+app.get("/coinbase/sell", function (req, res) {
+    var endpoint = COINBASE_API_ENDPOINT + "prices/" + req.query.buy + "-" + req.query.base + "/sell";
+    var request = https.get(endpoint, function (response) {
+        respondServer(req, res, response);
     });
 });
 

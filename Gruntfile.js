@@ -68,7 +68,7 @@ module.exports = function(grunt) {
             },
             scripts: {
                 files: ["server.js"],
-                tasks: ["build"]
+                tasks: ["onChange"]
             }
         }
     });
@@ -77,13 +77,14 @@ module.exports = function(grunt) {
         "wiredep"
     ]);
 
-    grunt.registerTask("build", [
-        "watchChange"
+    grunt.registerTask("onChange", [
+        "build"
     ]);
 
-    grunt.registerTask("watchChange", [
+    grunt.registerTask("build", [
         "wiredep",
-        "nodemon"
+        "nodemon",
+        "watch"
     ]);
 
 };
