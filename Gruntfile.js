@@ -66,13 +66,9 @@ module.exports = function(grunt) {
             options: {
                 livereload: true
             },
-            css: {
-                files: ["themes/custom/syntaxsofts_base/sass/*.*"],
-                tasks: ["compass:dist"]
-            },
             scripts: {
-                files: ["themes/custom/syntaxsofts_base/lib/*.*"],
-                tasks: ["uglify:dist"]
+                files: ["server.js"],
+                tasks: ["onChange"]
             }
         }
     });
@@ -81,9 +77,14 @@ module.exports = function(grunt) {
         "wiredep"
     ]);
 
+    grunt.registerTask("onChange", [
+        "build"
+    ]);
+
     grunt.registerTask("build", [
         "wiredep",
-        "nodemon"
+        "nodemon",
+        "watch"
     ]);
 
 };
