@@ -1,7 +1,5 @@
 # Tradex Monitor
-### Track your crypto currency exchanges with live rates monitor
-##
-
+#### Track your crypto currency exchanges with live rates monitor
 
 #### Technology Stack
 
@@ -17,5 +15,5 @@
 * [Bower](https://bower.io/) - Package manager for the frontend
 * _[Coffee] [Insomnia] [My Super-awesome Girlfriend <3 :*]_
 
-### Donations
+#### Donations
 * *Donate via Bitcoins only - 39bbNGHeZXcVPXEvP4YZxoAugNfAXc6xA8*
