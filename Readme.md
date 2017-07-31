@@ -1,5 +1,5 @@
 # Tradex Monitor
-## Track your crypto currency exchanges with live rates monitor
+### Track your crypto currency exchanges with live rates monitor
 
 #### Technology Stack
 
