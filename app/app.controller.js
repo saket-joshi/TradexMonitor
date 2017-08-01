@@ -4,6 +4,18 @@ app.controller("TickerController", ["$scope", "requestFactory", function ($scope
 
     $scope.sessionInfo = {};
     
+    // Initialize the Google Charts API
+    $scope.$on("$viewContentLoaded", function() {
+        google.charts.load("current", {
+            packages: ["line", "corechart"]
+        });
+
+        // On load of charts API, send out a broadcast signal
+        // so that the child controllers will listen to this signal
+        // and set the promise for charts to resolved
+        google.charts.setOnLoadCallback($scope.$broadcast("CHARTS_LOADED"));
+    });
+
     $scope.addMessage = function (text, type, strength) {
         type = type || "WARN";
         strength = strength || 2;
