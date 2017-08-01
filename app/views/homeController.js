@@ -1,5 +1,28 @@
 app.controller("homeCtrl", ["$scope", "requestFactory", function ($scope, requestFactory) {
 
+    // Set the variable for charts API loaded
+    $scope.resolveChartsPromise = false;
+
+    // Listen to the charts API load
+    // On load, set the promise to resolved
+    $scope.$on('CHARTS_LOADED', function() {
+        $scope.resolveChartsPromise = true;
+    });
+    
+    // Dummy data for charts
+    $scope.data = [
+        ['Year', 'Sales', 'Expenses'],
+        ['2004',  1000,      400],
+        ['2005',  1170,      460],
+        ['2006',  660,       1120],
+        ['2007',  1030,      540]
+    ];
+
+    $scope.options = {
+        title: 'Company Performance',
+        legend: { position: 'bottom' }
+    };
+
     $scope.$on("ASSIGN_DROPDOWN", function(event, data) {
         $scope.$apply(function() {
             $scope.exchangeParams[data.var] = data.value;
@@ -8,6 +31,7 @@ app.controller("homeCtrl", ["$scope", "requestFactory", function ($scope, reques
 
     $scope.currentTime = Date.now();
     $scope.exchangeParams = {};
+  
     $scope.currencies = {
         src: [{
             id: "BTC",

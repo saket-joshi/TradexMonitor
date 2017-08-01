@@ -2,6 +2,15 @@ app.controller("TickerController", ["$scope", "requestFactory", function ($scope
 
     // Initialize all the modules in the app
     $scope.$on("$viewContentLoaded", function () {
+        google.charts.load("current", {
+            packages: ["line", "corechart"]
+        });
+
+        // On load of charts API, send out a broadcast signal
+        // so that the child controllers will listen to this signal
+        // and set the promise for charts to resolved
+        google.charts.setOnLoadCallback($scope.$broadcast("CHARTS_LOADED"));
+      
         // Header - Statistical Analysis dropdown
         jQ("#header-dropdown").dropdown();
 
