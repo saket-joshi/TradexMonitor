@@ -1,6 +1,13 @@
+// Initialize jQuery
+var jQ = jQ || {};
+if (window.jQuery) {
+    jQ = $.noConflict();
+}
+
 var app = angular.module("currencyTicker", [
     "ngRoute",
-    "ngCookies"
+    "ngCookies",
+    "angular-loading-bar"
 ]);
 
 app.config(function($locationProvider, $routeProvider) {
@@ -23,3 +30,8 @@ app.config(function($locationProvider, $routeProvider) {
         redirectTo: "/home"
     });
 });
+
+// Remove the loading spinner from angular-loading-bar
+app.config(["cfpLoadingBarProvider", function(cfpLoadingBarProvider) {
+    cfpLoadingBarProvider.includeSpinner = false;
+}]);

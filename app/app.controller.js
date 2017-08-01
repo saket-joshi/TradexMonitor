@@ -1,11 +1,7 @@
 app.controller("TickerController", ["$scope", "requestFactory", function ($scope, requestFactory) {
 
-    $scope.messages = [];
-
-    $scope.sessionInfo = {};
-    
-    // Initialize the Google Charts API
-    $scope.$on("$viewContentLoaded", function() {
+    // Initialize all the modules in the app
+    $scope.$on("$viewContentLoaded", function () {
         google.charts.load("current", {
             packages: ["line", "corechart"]
         });
@@ -14,7 +10,22 @@ app.controller("TickerController", ["$scope", "requestFactory", function ($scope
         // so that the child controllers will listen to this signal
         // and set the promise for charts to resolved
         google.charts.setOnLoadCallback($scope.$broadcast("CHARTS_LOADED"));
+      
+        // Header - Statistical Analysis dropdown
+        jQ("#header-dropdown").dropdown();
+
+        // Currency exchange dropdowns
+        jQ(".currency-convert .ui.fluid.selection.dropdown").dropdown({
+            onChange: function (value, text, $choice) {
+                $scope.$broadcast("ASSIGN_DROPDOWN", {
+                    value: value,
+                    var: $choice.attr("data-bind-to")
+                });
+            }
+        });
     });
+
+    $scope.messages = [];
 
     $scope.addMessage = function (text, type, strength) {
         type = type || "WARN";

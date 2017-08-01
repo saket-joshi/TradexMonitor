@@ -1,5 +1,6 @@
 .section.header .ui.vertical.menu {
     width: 20rem;
+    height: 100%;
 }
 .section.header i.icon, i.icons {
     font-size: 1.25em;
@@ -12,4 +13,17 @@
 }
 .section.header .menu .ui.left.pointing.dropdown > .menu {
     margin: -1em 0em 0em 4em;
+}
+.index-container {
+    padding: 2em 2em 0em 0em !important;
+}
+.index-container.ui.grid > .column {
+    padding-left: 0px !important;
+    padding-right: 0px !important;
+}
+#destination-currency .menu.transition.visible {
+    overflow: hidden;
+}
+#exchange-rate-container {
+    margin: 2em 0em;
 }
