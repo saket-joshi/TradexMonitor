@@ -2,30 +2,99 @@
     {{messages}}
 </div>
 <div class="currency-convert">
-    <div id="source-currency">
-        <select ng-model="exchangeParams.srcId" ng-options="c.id as c.name for c in currencies.src">
-            <option value="">Select source currency</option>
-        </select>
+    <div>
+        <h1 class="ui top attached header">
+            <i class="exchange icon"></i>
+            <div class="content">
+                Live exchange rates
+                <div class="sub header">Sign up for more features</div>
+            </div>
+        </h1>
     </div>
+    <div class="ui attached segment">
+        <div class="ui grid">
+            <div class="five wide column" id="source-currency">
+                <div class="ui fluid selection dropdown">
+                    <input type="hidden" name="source-currency"/>
+                    <i class="dropdown icon"></i>
+                    <div class="default text">Rates for...</div>
+                    <div class="menu">
+                        <div class="ui icon search input">
+                            <i class="search icon"></i>
+                            <input type="text" placeholder="Search currency...">
+                        </div>
 
-    <div id="destination-currency">
-        <select ng-model="exchangeParams.destId" ng-options="c.id as c.name for c in currencies.dest">
-            <option value="">Select destination currency</option>
-        </select>
-    </div>
+                        <div class="divider"></div>
+                        
+                        <div class="scrolling menu">
+                            <div 
+                                class="item"
+                                ng-repeat="currency in currencies.src"
+                                data-value="{{currency.id}}"
+                                data-bind-to="srcId">
+                                {{currency.name}}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-    <div class="convert-button">
-        <span>
-            <button type="button" class="button" ng-click="getExchangeRate();">Get Exchange Rate</button>
-        </span>
-        <span ng-show="false">
-            <div class="ui small indeterminate active inline loader"></div>
-        </span>
-    </div>
+            <div class="five wide column" id="destination-currency">
+                <div class="ui fluid selection dropdown">
+                    <input type="hidden" name="source-currency"/>
+                    <i class="dropdown icon"></i>
+                    <div class="default text">Rates in...</div>
+                    
+                    <div class="menu">
+                        <div class="ui icon search input">
+                            <i class="search icon"></i>
+                            <input type="text" placeholder="Search currency...">
+                        </div>
 
-    <div class="exchange-rate-container" ng-if="exchangeRate">
-        <span>1 {{exchangeParams.srcId}}</span>
-        <img src="" alt="exchange-icon"/>
-        <span>{{exchangeRate|currency: ""}} {{exchangeParams.destId}}</span>
+                        <div class="divider"></div>
+                        
+                        <div class="scrolling menu">
+                            <div
+                                class="item"
+                                ng-repeat="currency in currencies.dest"
+                                data-value="{{currency.id}}"
+                                data-bind-to="destId">
+                                {{currency.name}}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="six wide column" style="text-align: center;">
+                <button
+                    class="ui right labeled icon positive button"
+                    ng-disabled="!(exchangeParams.srcId && exchangeParams.destId)"
+                    ng-click="getExchangeRate();">
+                    <i class="right arrow icon"></i>
+                    Get Exchange Rates
+                </button>
+            </div>
+        </div>
+
+        <div id="exchange-rate-container" ng-if="exchangeRate">
+            <div class="ui segment">
+                <div class="ui three statistics">
+                    <div class="statistic">
+                        <div class="value">1</div>
+                        <div class="label">{{exchangeParams.srcId}}</div>
+                    </div>
+                    <div class="statistic">
+                        <div class="text value">value at</div>
+                        <div class="label">{{currentTime | date: 'medium'}}</div>
+                    </div>
+                    <div class="statistic">
+                        <div class="value">{{exchangeRate|currency: ""}}</div>
+                        <div class="label">{{exchangeParams.destId}}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>

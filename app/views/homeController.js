@@ -1,5 +1,12 @@
 app.controller("homeCtrl", ["$scope", "requestFactory", function ($scope, requestFactory) {
 
+    $scope.$on("ASSIGN_DROPDOWN", function(event, data) {
+        $scope.$apply(function() {
+            $scope.exchangeParams[data.var] = data.value;
+        });
+    });
+
+    $scope.currentTime = Date.now();
     $scope.exchangeParams = {};
     $scope.currencies = {
         src: [{

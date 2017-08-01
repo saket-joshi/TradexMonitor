@@ -1,9 +1,23 @@
 app.controller("TickerController", ["$scope", "requestFactory", function ($scope, requestFactory) {
 
+    // Initialize all the modules in the app
+    $scope.$on("$viewContentLoaded", function () {
+        // Header - Statistical Analysis dropdown
+        jQ("#header-dropdown").dropdown();
+
+        // Currency exchange dropdowns
+        jQ(".currency-convert .ui.fluid.selection.dropdown").dropdown({
+            onChange: function (value, text, $choice) {
+                $scope.$broadcast("ASSIGN_DROPDOWN", {
+                    value: value,
+                    var: $choice.attr("data-bind-to")
+                });
+            }
+        });
+    });
+
     $scope.messages = [];
 
-    $scope.sessionInfo = {};
-    
     $scope.addMessage = function (text, type, strength) {
         type = type || "WARN";
         strength = strength || 2;

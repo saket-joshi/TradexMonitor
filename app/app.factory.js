@@ -4,9 +4,6 @@ app.factory("requestFactory", ["$http", function($http) {
     var SF_META_URL = "/services/meta/";
     var SF_DATA_URL = "/services/data/";
 
-    var client_id = "3MVG9d8..z.hDcPLlRr8GWxQufOOqwjkXqhGkuh8bc67.Txbf2egAgCv34cSLWA8lU76NQR7rxWEEmSxmaJJ.";
-    var client_secret = "3354555950090244631";
-
     var requestFactory = {};
 
     requestFactory.getAllCurrency = function() {
@@ -21,9 +18,9 @@ app.factory("requestFactory", ["$http", function($http) {
     requestFactory.getExchange = function (srcCurrency) {
         var request = {
             method: "GET",
-            url: COINBASE_ENDPOINT + "exchange-rates",
+            url: COINBASE_ENDPOINT + "exchange",
             params: {
-                currency: srcCurrency
+                src: srcCurrency
             }
         };
 
