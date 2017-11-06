@@ -35,3 +35,11 @@ app.config(function($locationProvider, $routeProvider) {
 app.config(["cfpLoadingBarProvider", function(cfpLoadingBarProvider) {
     cfpLoadingBarProvider.includeSpinner = false;
 }]);
+
+// Add the HTTP header for all the requests
+app.config(["$httpProvider", function($httpProvider) {
+    $httpProvider.defaults.headers = $httpProvider.defaults.headers || {};
+    $httpProvider.defaults.headers.common = {
+        "X-TXMonitor-Version": "dev"
+    };
+}]);

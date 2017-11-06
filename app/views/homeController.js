@@ -33,39 +33,47 @@ app.controller("homeCtrl", ["$scope", "requestFactory", function ($scope, reques
     $scope.exchangeParams = {};
   
     $scope.currencies = {
-        src: [{
-            id: "BTC",
-            name: "Bitcoin"
+        dest: [{
+            Name: "INR",
+            FullName: "Indian Rupee"
         }, {
-            id: "ETH",
-            name: "Ethereum"
+            Name: "USD",
+            FullName: "US Dollar"
         }, {
-            id: "LTC",
-            name: "Litecoin"
+            Name: "JPY",
+            FullName: "Japanese Yen"
+        }, {
+            Name: "CAD",
+            FullName: "Canadian Dollar"
+        }, {
+            Name: "GBP",
+            FullName: "Pound Sterling"
+        }, {
+            Name: "AED",
+            FullName: "United Arab Emirates Dirham"
         }]
     };
 
     requestFactory.getAllCurrency()
         .then(function success(res) {
-            $scope.currencies.dest = res.data.data;
+            $scope.currencies.src = res.Data;
         }, function error(err) {
-            console.error("Error at homeCtrl", err);
-            $scope.$parent.addMessage(err.toString(), "ERROR");
+            $scope.$parent.addMessage(JSON.stringify(err), "ERROR");
         });
 
     $scope.getExchangeRate = function() {
-        requestFactory.getExchange($scope.exchangeParams.srcId)
+        requestFactory.getExchange($scope.exchangeParams.srcId, $scope.exchangeParams.destId)
             .then(function success(res) {
-                $scope.exchangeRate = res.data.data.rates[$scope.exchangeParams.destId];
+                console.log("exchange rate-", res);
+                $scope.exchangeRate = res[$scope.exchangeParams.destId];
                 
                 if (isUndefinedOrNull($scope.exchangeRate)) {
-                    $scope.$parent.addMessage("Exchange is not possible at the moment");
+                    $scope.$parent.addMessage("Exchange is not possible at the moment", "WARN");
                     return;
                 }
 
             }, function error (err) {
-                console.error("Error at homeCtrl", err);
-                $scope.$parent.addMessage(err.toString(), "ERROR");
+                $scope.$parent.addMessage(JSON.stringify(err), "ERROR");
             });
     }
 
