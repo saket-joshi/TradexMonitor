@@ -1,40 +1,41 @@
-app.factory("requestFactory", ["$http", function($http) {
+app.factory("requestFactory", ["$http", "$q", function($http, $q) {
 
-    var COINBASE_ENDPOINT = "/coinbase/";
-    var SF_META_URL = "/services/meta/";
-    var SF_DATA_URL = "/services/data/";
-
+    var API_ENDPOINT = "/api/";
     var requestFactory = {};
 
+    // Method to form a request and respond
+    function doRespond(method, endpoint, params, headers) {
+        // Forming the HTTP request config here
+        var config = {
+            method: method,
+            url: endpoint
+        };
+
+        if (params) {
+            config.params = params;
+        }
+
+        if (headers) {
+            config.headers = headers;
+        }
+
+        // Turn to async and send request
+        var deferred = $q.defer();
+        $http(config)
+        .then(function(response) {
+            deferred.resolve(response.data);
+        }, function(error) {
+            deferred.reject(error);
+        });
+
+        return deferred.promise;
+    }
+
     requestFactory.getAllCurrency = function() {
-        var request = {
-            method: "GET",
-            url: COINBASE_ENDPOINT + "currencies"
-        };
-
-        return $http(request);
+        return doRespond("GET", API_ENDPOINT + "currencies");
     },
-
-    requestFactory.getExchange = function (srcCurrency) {
-        var request = {
-            method: "GET",
-            url: COINBASE_ENDPOINT + "exchange",
-            params: {
-                src: srcCurrency
-            }
-        };
-
-        return $http(request);
-    },
-
-    requestFactory.describe = function () {
-        var request = {
-            method: "GET",
-            url: SF_META_URL + "describe",
-            withCredentials: true
-        };
-
-        return $http(request);
+    requestFactory.getExchange = function (src, dest) {
+        return doRespond("GET", API_ENDPOINT + "exchange", { src: src, dest: dest });
     }
 
     return requestFactory;

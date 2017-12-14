@@ -28,7 +28,7 @@ app.controller("TickerController", ["$scope", "requestFactory", function ($scope
     $scope.messages = [];
 
     $scope.addMessage = function (text, type, strength) {
-        type = type || "WARN";
+        type = type || "LOG";
         strength = strength || 2;
 
         // Add this message to the top
@@ -48,11 +48,5 @@ app.controller("TickerController", ["$scope", "requestFactory", function ($scope
         return $scope.messages.splice(id, 1);
     }
 
-    $scope.getDescribe = function () {
-        requestFactory.describe()
-            .then(function (res) {
-                console.log(res);
-            });
-    }
 
 }]);

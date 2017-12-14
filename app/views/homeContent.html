@@ -27,12 +27,11 @@
                         <div class="divider"></div>
                         
                         <div class="scrolling menu">
-                            <div 
-                                class="item"
+                            <div class="item"
                                 ng-repeat="currency in currencies.src"
-                                data-value="{{currency.id}}"
+                                data-value="{{currency.Name}}"
                                 data-bind-to="srcId">
-                                {{currency.name}}
+                                {{currency.FullName}}
                             </div>
                         </div>
                     </div>
@@ -54,12 +53,11 @@
                         <div class="divider"></div>
                         
                         <div class="scrolling menu">
-                            <div
-                                class="item"
+                            <div class="item"
                                 ng-repeat="currency in currencies.dest"
-                                data-value="{{currency.id}}"
+                                data-value="{{currency.Name}}"
                                 data-bind-to="destId">
-                                {{currency.name}}
+                                {{currency.FullName}}
                             </div>
                         </div>
                     </div>

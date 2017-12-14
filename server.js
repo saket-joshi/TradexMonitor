@@ -11,13 +11,13 @@ var path = require("path");
 var bodyParser = require("body-parser");
 var cookieParser = require("cookie-parser");
 var express = require("express");
-var jsforce = require("jsforce");
 var https = require("https");
 var app = express();
 
 var __jsCache = {};
 
-var COINBASE_API_ENDPOINT = "https://api.coinbase.com/v2/";
+// API endpoints for the crypto-api
+var API_ENDPOINT = "https://min-api.cryptocompare.com/data/";
 
 // Make available the app folder
 app.use(express.static(path.join(__dirname, "app")));
@@ -82,13 +82,12 @@ var respondServer = function (req, res, serverResponse) {
     serverResponse.on("end", function () {
         res.setHeader("Content-Type", "application/json");
         if (errorResponse) {
-            res.setHeader("X-Coinbase-Error", true);
+            res.setHeader("X-API-Error", true);
             respondFailure(req, res, errorResponse, true);
         } else {
-            
-            // If this is an error from coinbase, then specify
+            // If this is an error from api, then specify
             if (JSON.parse(successResponse).errors) {
-                res.setHeader("X-Coinbase-Error", true);
+                res.setHeader("X-API-Error", true);
                 return respondFailure(req, res, successResponse, true);
             }
 
@@ -97,59 +96,34 @@ var respondServer = function (req, res, serverResponse) {
     });
 }
 
-// Setup the endpoint for coinbase currencies
-app.get("/coinbase/currencies", function (req, res) {
-    var endpoint = COINBASE_API_ENDPOINT + "currencies";
+// Setup the endpoint for listing all currencies
+app.get("/api/currencies", function (req, res) {
+    var endpoint = API_ENDPOINT + "all/coinlist";
     var request = https.get(endpoint , function (response) {
         respondServer(req, res, response);
     });
 });
 
-// Setup the endpoint for coinbase exchange rates
-app.get("/coinbase/exchange", function (req, res) {
-    var endpoint = COINBASE_API_ENDPOINT + "exchange-rates?currency=" + req.query.src;
+// Setup the endpoint for exchange rates
+app.get("/api/exchange", function (req, res) {
+    var endpoint = API_ENDPOINT + "price?fsym=" + req.query.src + "&tsyms=" + req.query.dest;
     var request = https.get(endpoint, function (response) {
         respondServer(req, res, response);
     });
 });
 
-// Setup the endpoint for coinbase buy rates
-app.get("/coinbase/buy", function (req, res) {
-    var endpoint = COINBASE_API_ENDPOINT + "prices/" + req.query.buy + "-" + req.query.base + "/buy";
+// Setup the endpoint for buy rates
+app.get("/api/buy", function (req, res) {
+    var endpoint = API_ENDPOINT + "prices/" + req.query.buy + "-" + req.query.base + "/buy";
     var request = https.get(endpoint, function (response) {
         respondServer(req, res, response);
     });
 });
 
-// Setup the endpoint for coinbase sell rates
-app.get("/coinbase/sell", function (req, res) {
-    var endpoint = COINBASE_API_ENDPOINT + "prices/" + req.query.buy + "-" + req.query.base + "/sell";
+// Setup the endpoint for sell rates
+app.get("/api/sell", function (req, res) {
+    var endpoint = API_ENDPOINT + "prices/" + req.query.buy + "-" + req.query.base + "/sell";
     var request = https.get(endpoint, function (response) {
         respondServer(req, res, response);
-    });
-});
-
-// Setup the library for Salesforce connection
-var connection = function (req) {
-    var options = {
-        instanceUrl: req.cookies.SF_INSTANCE_URL,
-        accessToken: req.cookies.SF_ACCESS_TOKEN
-    };
-
-    // We will check if the access token is already used or not
-    // ...i.e. if the connection is already established or not
-    // If yes, then we return the existing connection
-    // else setup a new connection and store it in the cache
-    if (__jsCache[options.accessToken] == null) {    
-        __jsCache[options.accessToken] = new jsforce.Connection(options);
-    }
-
-    return __jsCache[options.accessToken];
-}
-
-// Setup SF endpoints to be used by the app
-app.get("/services/meta/describe", function (req, res) {
-    connection(req).describeGlobal(function (errors, meta) {
-        returnJson(req, res, errors, meta);
     });
 });
