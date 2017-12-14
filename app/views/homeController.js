@@ -29,7 +29,6 @@ app.controller("homeCtrl", ["$scope", "requestFactory", function ($scope, reques
         });
     });
 
-    $scope.currentTime = Date.now();
     $scope.exchangeParams = {};
   
     $scope.currencies = {

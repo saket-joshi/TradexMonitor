@@ -27,3 +27,12 @@
 #exchange-rate-container {
     margin: 2em 0em;
 }
+.currency-convert .menu.transition.visible {
+    overflow: hidden !important;
+}
+#exchange-rate-container .statistic > .value {
+    font-size: 3.5rem !important;
+}
+#exchange-rate-container .ui.three.statistics {
+    margin: 0em 0em -4em;
+}
