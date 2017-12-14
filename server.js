@@ -6,6 +6,13 @@
 
 "use strict";
 
+// Setup the environment constants
+var ENV_DEV = "DEV";
+var ENV_PROD = "PROD";
+
+// Set the node environment variable
+process.env.VERSION = ENV_DEV;
+
 // List out all the dependencies for the NodeJs server
 var path = require("path");
 var bodyParser = require("body-parser");
@@ -13,11 +20,32 @@ var cookieParser = require("cookie-parser");
 var express = require("express");
 var https = require("https");
 var app = express();
-
-var __jsCache = {};
+var mongodb = require("mongodb").MongoClient;
 
 // API endpoints for the crypto-api
 var API_ENDPOINT = "https://min-api.cryptocompare.com/data/";
+var MONGODB_CONNECTION = ENV_DEV.match(process.env.VERSION)
+        ? "mongodb://root:root@ds147534.mlab.com:47534/tradexmonitor-dev"
+        : "mongodb://<dbuser>:<dbpassword>@server/tradexmonitor-db";
+
+
+// Setup the database structure
+var db = db || {
+    collections: {
+        users: {
+            name: "users",
+            validator: {
+                $and: [
+                    { username: { $type: "string" } },
+                    { password: { $type: "string" } },
+                    { email: { $type: "string" } },
+                    { resetSecret: { $type: "string" } },
+                    { status: { $in: [ "Confirmed", "Unconfirmed", "Inactive" ] } }
+                ]
+            }
+        }
+    }
+};
 
 // Make available the app folder
 app.use(express.static(path.join(__dirname, "app")));
@@ -32,6 +60,8 @@ app.use(cookieParser());
 // Start the server on port #3000
 app.listen(3000, function() {
     console.log("Node server started on port 3000");
+    console.log("Environment - " + process.env.VERSION);
+    db.connect();
 });
 
 // Utility method to simplify request and response
@@ -127,3 +157,36 @@ app.get("/api/sell", function (req, res) {
         respondServer(req, res, response);
     });
 });
+
+// Connect to the mongo database
+db.connect = function (req, res) {
+    mongodb.connect(MONGODB_CONNECTION, function(err, conn) {
+        // Try connection here
+        // If connection fail then respond failure
+        if (err) {
+            respondFailure(req, res, err);
+        }
+
+        // If connection success then respond success
+        // and return the connection object
+        db.conn = conn;
+        console.log("Database connection success");
+    });
+}
+
+// Create the database
+// This will be a one-time initialization
+// Create users collection
+db.createUserCollection = function (req, res) {
+    if (!db || !db.conn) {
+        respondFailure(req, res, "Database connection not found", false);
+    }
+
+    // Create the user collection here
+    db.conn.createCollection(
+        db.collections.users.name,
+        { validator: db.collections.users.validator }
+    );
+}
+
+// Create collection for 
