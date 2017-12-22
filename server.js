@@ -36,13 +36,129 @@ var db = db || {
             name: "users",
             validator: {
                 $and: [
+                    { name: { $type: "string" } },
                     { username: { $type: "string" } },
                     { password: { $type: "string" } },
                     { email: { $type: "string" } },
                     { resetSecret: { $type: "string" } },
-                    { status: { $in: [ "Confirmed", "Unconfirmed", "Inactive" ] } }
+                    { status: { $in: [ "Confirmed", "Unconfirmed", "Inactive" ] } },
+                    { lastLogin: { $type: "long" } },
                 ]
+            },
+            createCollection: function () {
+                // Method to create a new collection of a user
+                db.conn.createCollection(
+                    db.collections.users.name,
+                    { validator: db.collections.users.validator }
+                );
+            },
+            insert: function (data) {
+                // Method to insert a new user
+                return db.conn.collection(this.name)
+                    .insertOne(data);
+            },
+            setInactive: function (username) {
+                // Method to set the user as inactive
+                return db.conn.collection(this.name)
+                    .updateOne({
+                        username: username
+                    }, {
+                        $set: {
+                            status: "Inactive"
+                        },
+                        $currentDate: {
+                            lastModified: true
+                        }
+                    }
+                );
+            },
+            fetch: function (username) {
+                // Method to get the details of a user
+                return db.conn.collection(this.name)
+                    .findOne({ username: username });
+            },
+            update: function (data) {
+                // Method to update a user record
+                return db.conn.collection(this.name)
+                    .replaceOne({
+                        username: data.username
+                    }, data
+                );
             }
+        },
+        tradeHistory: {
+            name: "tradeHistory",
+            validator: {
+                $and: [
+                    { transactionType: { $in: [ "Sale", "Purchase" ] } },
+                    { source: { $type: "string" } },
+                    { dest: { $type: "string" } },
+                    { value: { $type: "number" } },
+                    { username: { $type: "string" } },
+                    { timestamp: { $type: "long" } },
+                    { comments: { $type: "string" } }
+                ]
+            },
+            createCollection: function () {
+                // Method to create a new collection of a user
+                db.conn.createCollection(
+                    db.collections.tradeHistory.name,
+                    { validator: db.collections.tradeHistory.validator }
+                );
+            },
+            insert: function (data) {
+                // Method to insert a new trading history record
+            },
+            delete: function (tradeHistoryId) {
+                // Method to delete trading history record
+            },
+            fetch: function (user, coin) {
+                // Method to get the details of a trading history
+            },
+            update: function (data) {
+                // Method to update a trading history record
+            }
+        },
+        coinHistory: {
+            name: "coinHistory",
+            validator: {
+                $and: [
+                    { currency: { $type: "string" } },
+                    { value: { $type: "number" } },
+                    { timestamp: { $type: "long" } }
+                ]
+            },
+            createCollection: function () {
+                // Method to create a new collection of a user
+                db.conn.createCollection(
+                    db.collections.coinHistory.name,
+                    { validator: db.collections.coinHistory.validator }
+                );
+            },
+            insert: function (data) {
+                // Method to insert a coin history record
+            },
+            delete: function (historyId) {
+                // Method to delete the coin history record
+            },
+            fetch: function (coin, timestamp) {
+                // Method to get the details of a coin history
+            },
+            update: function (data) {
+                // Method to update a coin history record
+            }
+        },
+        createAll: function () {
+            // Create all the collections one after the another
+            try {
+                db.collections.users.createCollection();
+                db.collections.tradeHistory.createCollection();
+                db.collections.coinHistory.createCollection();
+            } catch (ex) {
+                return ex;
+            }
+
+            return true;
         }
     }
 };
@@ -170,23 +286,7 @@ db.connect = function (req, res) {
         // If connection success then respond success
         // and return the connection object
         db.conn = conn;
+        db.collections.createAll();
         console.log("Database connection success");
     });
 }
-
-// Create the database
-// This will be a one-time initialization
-// Create users collection
-db.createUserCollection = function (req, res) {
-    if (!db || !db.conn) {
-        respondFailure(req, res, "Database connection not found", false);
-    }
-
-    // Create the user collection here
-    db.conn.createCollection(
-        db.collections.users.name,
-        { validator: db.collections.users.validator }
-    );
-}
-
-// Create collection for 
