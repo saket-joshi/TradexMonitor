@@ -102,7 +102,7 @@ var db = db || {
                     { transactionType: { $in: [ "Sale", "Purchase" ] } },
                     { source: { $type: "string" } },
                     { dest: { $type: "string" } },
-                    { value: { $type: "number" } },
+                    { value: { $type: "double" } },
                     { username: { $type: "string" } },
                     { timestamp: { $type: "long" } },
                     { comments: { $type: "string" } }
@@ -167,7 +167,7 @@ var db = db || {
             validator: {
                 $and: [
                     { currency: { $type: "string" } },
-                    { value: { $type: "number" } },
+                    { value: { $type: "double" } },
                     { timestamp: { $type: "long" } }
                 ]
             },
@@ -221,16 +221,20 @@ var db = db || {
         },
         createAllCollections: function () {
             // Create all the collections one after the another
-            try {
+            // try {
                 db.collections.users.createCollection();
                 db.collections.tradeHistory.createCollection();
                 db.collections.coinHistory.createCollection();
-            } catch (ex) {
-                return ex;
-            }
+            // } catch (ex) {
+            //     return ex;
+            // }
 
             return true;
         }
+    },
+    connect: function (callback) {
+        // Setup the mongodb connection
+        mongodb.connect(MONGODB_CONNECTION, callback);
     }
 };
 
@@ -252,10 +256,20 @@ app.listen(3000, function() {
         if (err) {
             // Connection unsuccessful
             console.error("Could not setup connection to database");
+            db.conn = undefined;
         } else {
             // Connection successful
             db.conn = conn;
             db.collections.createAllCollections();
+            
+            db.collections.coinHistory.insert({
+                currency: "BTC",
+                value: 123.456,
+                timestamp: new Date().getTime()
+            }).then(function(result) {
+                console.log(result);
+            });
+            
             console.log("Connection setup and all collections created");
         }
     });
@@ -354,8 +368,3 @@ app.get("/api/sell", function (req, res) {
         respondServer(req, res, response);
     });
 });
-
-// Connect to the mongo database
-db.connect = function (callback) {
-    mongodb.connect(MONGODB_CONNECTION, callback);
-}
