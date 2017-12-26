@@ -48,8 +48,8 @@ var db = db || {
             createCollection: function () {
                 // Method to create a new collection of a user
                 db.conn.createCollection(
-                    db.collections.users.name,
-                    { validator: db.collections.users.validator }
+                    this.name,
+                    { validator: this.validator }
                 );
             },
             insert: function (data) {
@@ -59,6 +59,7 @@ var db = db || {
             },
             setInactive: function (username) {
                 // Method to set the user as inactive
+                // Accepts username of the record to be set as inactive
                 return db.conn.collection(this.name)
                     .updateOne({
                         username: username
@@ -74,14 +75,22 @@ var db = db || {
             },
             fetch: function (username) {
                 // Method to get the details of a user
+                // Accepts username of the user to fetch
                 return db.conn.collection(this.name)
                     .findOne({ username: username });
             },
-            update: function (data) {
+            fetchAll: function () {
+                // Method to fetch all the users
+                return db.conn.collection(this.name)
+                    .find({});
+            },
+            update: function (data, oldData) {
                 // Method to update a user record
+                // Accepts oldData parameter to identify user to update based on username
+                // data parameter holds new information
                 return db.conn.collection(this.name)
                     .replaceOne({
-                        username: data.username
+                        username: oldData.username
                     }, data
                 );
             }
@@ -102,21 +111,55 @@ var db = db || {
             createCollection: function () {
                 // Method to create a new collection of a user
                 db.conn.createCollection(
-                    db.collections.tradeHistory.name,
-                    { validator: db.collections.tradeHistory.validator }
+                    this.name,
+                    { validator: this.validator }
                 );
             },
             insert: function (data) {
                 // Method to insert a new trading history record
+                return db.conn.collection(this.name)
+                    .insertOne(data);
             },
-            delete: function (tradeHistoryId) {
+            delete: function (data) {
                 // Method to delete trading history record
+                // Accepts data parameter to perform matching based on transaction type,
+                // source & destination currencies and timestamp
+                return db.conn.collection(this.name)
+                    .deleteOne({
+                        transactionType: data.transactionType,
+                        source: data.source,
+                        dest: data.dest,
+                        timestamp: data.timestamp
+                    });
             },
-            fetch: function (user, coin) {
+            fetch: function (user, coin, timestamp) {
                 // Method to get the details of a trading history
+                // Performs matching based on the username, coin and the transaction timestamp
+                return db.conn.collection(this.name)
+                    .findOne({
+                        username: user,
+                        source: coin,
+                        timestamp: timestamp
+                    });
             },
-            update: function (data) {
+            fetchAll: function () {
+                // Method to fetch all the trade history records
+                return db.conn.collection(this.name)
+                    .find({});
+            },
+            update: function (data, oldData) {
                 // Method to update a trading history record
+                // Accepts oldData param to perform matching on existing record based on
+                // transaction type, source & destination currencies and timestamp
+                // data parameter contains the new value
+                return db.conn.collection(this.name)
+                    .replaceOne({
+                        transactionType: oldData.transactionType,
+                        source: oldData.source,
+                        dest: oldData.dest,
+                        timestamp: oldData.timestamp
+                    }, data
+                );
             }
         },
         coinHistory: {
@@ -131,24 +174,52 @@ var db = db || {
             createCollection: function () {
                 // Method to create a new collection of a user
                 db.conn.createCollection(
-                    db.collections.coinHistory.name,
-                    { validator: db.collections.coinHistory.validator }
+                    this.name,
+                    { validator: this.validator }
                 );
             },
             insert: function (data) {
                 // Method to insert a coin history record
+                return db.conn.collection(this.name)
+                    .insertOne(data);
             },
-            delete: function (historyId) {
+            delete: function (data) {
                 // Method to delete the coin history record
+                // Performs matching based on the currency name and the timestamp
+                return db.conn.collection(this.name)
+                    .deleteOne({
+                        currency: data.currency,
+                        timestamp: data.timestamp
+                    });
             },
             fetch: function (coin, timestamp) {
                 // Method to get the details of a coin history
+                // Performs matching based on the currency name and the timestamp
+                return db.conn.collection(this.name)
+                    .findOne({
+                        currency: coin,
+                        timestamp: timestamp
+                    });
             },
-            update: function (data) {
+            fetchAll: function () {
+                // Method to fetch all coin history records
+                return db.conn.collection(this.name)
+                    .find({});
+            },
+            update: function (data, oldData) {
                 // Method to update a coin history record
+                // oldData param contains old value to be updated
+                // Performs matching based on the currency name and the timestamp
+                // Accepts data param that contains the new values
+                return db.conn.collection(this.name)
+                    .replaceOne({
+                        currency: oldData.currency,
+                        timestamp: oldData.timestamp
+                    }, data
+                );
             }
         },
-        createAll: function () {
+        createAllCollections: function () {
             // Create all the collections one after the another
             try {
                 db.collections.users.createCollection();
@@ -177,7 +248,17 @@ app.use(cookieParser());
 app.listen(3000, function() {
     console.log("Node server started on port 3000");
     console.log("Environment - " + process.env.VERSION);
-    db.connect();
+    db.connect(function(err, conn) {
+        if (err) {
+            // Connection unsuccessful
+            console.error("Could not setup connection to database");
+        } else {
+            // Connection successful
+            db.conn = conn;
+            db.collections.createAllCollections();
+            console.log("Connection setup and all collections created");
+        }
+    });
 });
 
 // Utility method to simplify request and response
@@ -275,18 +356,6 @@ app.get("/api/sell", function (req, res) {
 });
 
 // Connect to the mongo database
-db.connect = function (req, res) {
-    mongodb.connect(MONGODB_CONNECTION, function(err, conn) {
-        // Try connection here
-        // If connection fail then respond failure
-        if (err) {
-            respondFailure(req, res, err);
-        }
-
-        // If connection success then respond success
-        // and return the connection object
-        db.conn = conn;
-        db.collections.createAll();
-        console.log("Database connection success");
-    });
+db.connect = function (callback) {
+    mongodb.connect(MONGODB_CONNECTION, callback);
 }
