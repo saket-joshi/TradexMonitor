@@ -1,5 +1,24 @@
 app.controller("TickerController", ["$scope", "requestFactory", function ($scope, requestFactory) {
 
+    // Session information object
+    $scope.session = {};
+    $scope.session.user = {};
+
+    // Method to show signin popup
+    $scope.showSigninPopup = function () {
+        jQ("#md-sign-in").modal("show");
+    }
+
+    // Method to lookup for a particular user
+    $scope.lookupUser = function (username) {
+        requestFactory.lookupUser(username)
+            .then(function success (data) {
+                $scope.session.user.__valid = data.__valid;
+            }, function error (err) {
+
+            });
+    }
+
     // Initialize all the modules in the app
     $scope.$on("$viewContentLoaded", function () {
         google.charts.load("current", {

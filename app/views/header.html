@@ -5,7 +5,7 @@
             <a class="ui header">TradexMonitor</a>
         </div>
     </div>
-    <div class="link item">
+    <div class="link item" ng-click="showSigninPopup();">
         <div class="middle aligned content">
             <i class="child icon"></i>
             <a class="ui header">Sign In</a>
@@ -44,5 +44,85 @@
             <i class="bitcoin icon"></i>
             <a class="ui header">Donate</a>
         </div>
+    </div>
+</div>
+
+<div class="ui modal" id="md-sign-in">
+    <div class="header">
+        Sign In
+    </div>
+    <div class="content">
+        <form class="ui form" novalidate="true" name="signInForm">
+            <div class="fields">
+                <div class="required eight wide field">
+                    <label>Username</label>
+                    <input type="text"
+                        ng-model="session.user.userName"
+                        ng-blur="lookupUser();"
+                        placeholder="Username"
+                        required="true">
+                </div>
+                <div ng-if="session.user.__isNew"
+                    class="required eight wide field">
+                    <label>Email address</label>
+                    <input type="email"
+                        ng-model="session.user.email"
+                        placeholder="Email address"
+                        required="true">
+                </div>
+            </div>
+            <div class="fields">
+                <div class="required eight wide field">
+                    <label>Password</label>
+                    <input type="password"
+                        ng-model="session.user.password"
+                        placeholder="Password"
+                        required="true">
+                </div>
+                <div ng-if="session.user.__isNew"
+                    class="required eight wide field">
+                    <label>Confirm Password</label>
+                    <input type="password"
+                        ng-model="session.user.confirmPwd"
+                        placeholder="Confirm Password"
+                        required="true">
+                </div>
+            </div>
+            <div class="fields" ng-if="session.user.__isNew">
+                <div class="eight wide field">
+                    <label>First name</label>
+                    <input type="text"
+                        ng-model="session.user.firstName"
+                        placeholder="First name">
+                </div>
+                <div class="eight wide field">
+                    <label>Last name</label>
+                    <input type="text"
+                        ng-model="session.user.lastName"
+                        placeholder="Last name">
+                </div>
+            </div>
+            <div class="field" ng-if="session.user.__isNew">
+                <label>Password reset key</label>
+                <input type="password"
+                    ng-model="session.user.resetKey"
+                    placeholder="Password reset key">
+            </div>
+            <div class="field" ng-if="session.user.__isNew">
+                <div class="ui checkbox">
+                  <input type="checkbox" class="hidden">
+                  <label>I agree to the Terms and Conditions</label>
+                </div>
+            </div>
+            
+            <button class="positive ui button"
+                ng-disabled="signInForm.$invalid"
+                ng-if="!session.user.__isNew">Sign In</button>
+            
+            <button class="positive ui button"
+                ng-if="session.user.__isNew">Sign Up</button>
+            
+            <button class="negative ui button">Cancel</button>
+        </form>
     </div>
 </div>

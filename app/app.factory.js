@@ -1,6 +1,8 @@
 app.factory("requestFactory", ["$http", "$q", function($http, $q) {
 
     var API_ENDPOINT = "/api/";
+    var DB_ENDPOINT = "/db/";
+
     var requestFactory = {};
 
     // Method to form a request and respond
@@ -31,11 +33,14 @@ app.factory("requestFactory", ["$http", "$q", function($http, $q) {
         return deferred.promise;
     }
 
-    requestFactory.getAllCurrency = function() {
+    requestFactory.getAllCurrency = function () {
         return doRespond("GET", API_ENDPOINT + "currencies");
     },
     requestFactory.getExchange = function (src, dest) {
         return doRespond("GET", API_ENDPOINT + "exchange", { src: src, dest: dest });
+    },
+    requestFactory.lookupUser = function (username) {
+        return doRespond("GET", DB_ENDPOINT + "users/find", { un: username });
     }
 
     return requestFactory;

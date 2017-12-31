@@ -73,11 +73,11 @@ var db = db || {
                     }
                 );
             },
-            fetch: function (username) {
+            fetch: function (username, callback) {
                 // Method to get the details of a user
                 // Accepts username of the user to fetch
-                return db.conn.collection(this.name)
-                    .findOne({ username: username });
+                db.conn.collection(this.name)
+                    .findOne({ username: username }, callback);
             },
             fetchAll: function () {
                 // Method to fetch all the users
@@ -234,7 +234,13 @@ var db = db || {
     },
     connect: function (callback) {
         // Setup the mongodb connection
-        mongodb.connect(MONGODB_CONNECTION, callback);
+        mongodb.connect(MONGODB_CONNECTION, function(err, conn) {
+            if (conn) {
+                // Connection successful
+                db.conn = conn;
+            }
+            callback(err, conn);
+        });
     }
 };
 
@@ -259,11 +265,8 @@ app.listen(3000, function() {
             console.error("Could not setup connection to database");
             db.conn = undefined;
         } else {
-            // Connection successful
-            db.conn = conn;
             // Create all the necessary collections
-            db.collections.createAllCollections();        
-
+            db.collections.createAllCollections();
             // Close the connection
             db.conn.close();
 
@@ -363,5 +366,26 @@ app.get("/api/sell", function (req, res) {
     var endpoint = API_ENDPOINT + "prices/" + req.query.buy + "-" + req.query.base + "/sell";
     var request = https.get(endpoint, function (response) {
         respondServer(req, res, response);
+    });
+});
+
+// Setup the endpoint for user lookup
+app.get("/db/users/find", function (req, res) {
+    var username = req.query.un;
+    
+    db.connect(function () {
+        db.collections.users.fetch(username, function (err, result) {
+            if (result) {
+                if (result._id) {
+                    respondSuccess(req, res, { __valid: true });
+                } else {
+                    respondSuccess(req, res, { __valid: false });
+                }
+            } else {
+                console.error(err);
+            }
+
+            db.conn.close();
+        });
     });
 });
