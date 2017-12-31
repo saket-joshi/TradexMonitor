@@ -252,6 +252,7 @@ app.use(cookieParser());
 app.listen(3000, function() {
     console.log("Node server started on port 3000");
     console.log("Environment - " + process.env.VERSION);
+    
     db.connect(function(err, conn) {
         if (err) {
             // Connection unsuccessful
@@ -260,16 +261,12 @@ app.listen(3000, function() {
         } else {
             // Connection successful
             db.conn = conn;
-            db.collections.createAllCollections();
-            
-            db.collections.coinHistory.insert({
-                currency: "BTC",
-                value: 123.456,
-                timestamp: new Date().getTime()
-            }).then(function(result) {
-                console.log(result);
-            });
-            
+            // Create all the necessary collections
+            db.collections.createAllCollections();        
+
+            // Close the connection
+            db.conn.close();
+
             console.log("Connection setup and all collections created");
         }
     });
