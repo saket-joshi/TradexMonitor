@@ -52,15 +52,15 @@ var db = db || {
                     { validator: this.validator }
                 );
             },
-            insert: function (data) {
+            insert: function (data, callback) {
                 // Method to insert a new user
-                return db.conn.collection(this.name)
-                    .insertOne(data);
+                db.conn.collection(this.name)
+                    .insertOne(data, callback);
             },
-            setInactive: function (username) {
+            setInactive: function (username, callback) {
                 // Method to set the user as inactive
                 // Accepts username of the record to be set as inactive
-                return db.conn.collection(this.name)
+                db.conn.collection(this.name)
                     .updateOne({
                         username: username
                     }, {
@@ -70,7 +70,8 @@ var db = db || {
                         $currentDate: {
                             lastModified: true
                         }
-                    }
+                    },
+                    callback
                 );
             },
             fetch: function (username, callback) {
@@ -79,19 +80,21 @@ var db = db || {
                 db.conn.collection(this.name)
                     .findOne({ username: username }, callback);
             },
-            fetchAll: function () {
+            fetchAll: function (callback) {
                 // Method to fetch all the users
-                return db.conn.collection(this.name)
-                    .find({});
+                db.conn.collection(this.name)
+                    .find({}).toArray(callback);
             },
-            update: function (data, oldData) {
+            update: function (data, oldData, callback) {
                 // Method to update a user record
                 // Accepts oldData parameter to identify user to update based on username
                 // data parameter holds new information
-                return db.conn.collection(this.name)
+                db.conn.collection(this.name)
                     .replaceOne({
                         username: oldData.username
-                    }, data
+                    },
+                    data,
+                    callback
                 );
             }
         },
@@ -109,56 +112,60 @@ var db = db || {
                 ]
             },
             createCollection: function () {
-                // Method to create a new collection of a user
+                // Method to create a new collection of a trade history
                 db.conn.createCollection(
                     this.name,
                     { validator: this.validator }
                 );
             },
-            insert: function (data) {
+            insert: function (data, callback) {
                 // Method to insert a new trading history record
-                return db.conn.collection(this.name)
-                    .insertOne(data);
+                db.conn.collection(this.name)
+                    .insertOne(data, callback);
             },
-            delete: function (data) {
+            delete: function (data, callback) {
                 // Method to delete trading history record
                 // Accepts data parameter to perform matching based on transaction type,
                 // source & destination currencies and timestamp
-                return db.conn.collection(this.name)
+                db.conn.collection(this.name)
                     .deleteOne({
                         transactionType: data.transactionType,
                         source: data.source,
                         dest: data.dest,
                         timestamp: data.timestamp
-                    });
+                    }, callback);
             },
-            fetch: function (user, coin, timestamp) {
+            fetch: function (user, coin, timestamp, callback) {
                 // Method to get the details of a trading history
                 // Performs matching based on the username, coin and the transaction timestamp
-                return db.conn.collection(this.name)
+                db.conn.collection(this.name)
                     .findOne({
                         username: user,
                         source: coin,
                         timestamp: timestamp
-                    });
+                    }, callback);
             },
-            fetchAll: function () {
+            fetchAll: function (username, callback) {
                 // Method to fetch all the trade history records
-                return db.conn.collection(this.name)
-                    .find({});
+                db.conn.collection(this.name)
+                    .find({
+                        username: username
+                    }).toArray(callback);
             },
-            update: function (data, oldData) {
+            update: function (data, oldData, callback) {
                 // Method to update a trading history record
                 // Accepts oldData param to perform matching on existing record based on
                 // transaction type, source & destination currencies and timestamp
                 // data parameter contains the new value
-                return db.conn.collection(this.name)
+                db.conn.collection(this.name)
                     .replaceOne({
                         transactionType: oldData.transactionType,
                         source: oldData.source,
                         dest: oldData.dest,
                         timestamp: oldData.timestamp
-                    }, data
+                    },
+                    data,
+                    callback
                 );
             }
         },
@@ -178,44 +185,48 @@ var db = db || {
                     { validator: this.validator }
                 );
             },
-            insert: function (data) {
+            insert: function (data, callback) {
                 // Method to insert a coin history record
-                return db.conn.collection(this.name)
-                    .insertOne(data);
+                db.conn.collection(this.name)
+                    .insertOne(data, callback);
             },
-            delete: function (data) {
+            delete: function (data, callback) {
                 // Method to delete the coin history record
                 // Performs matching based on the currency name and the timestamp
-                return db.conn.collection(this.name)
+                db.conn.collection(this.name)
                     .deleteOne({
                         currency: data.currency,
                         timestamp: data.timestamp
-                    });
+                    }, callback);
             },
-            fetch: function (coin, timestamp) {
+            fetch: function (coin, timestamp, callback) {
                 // Method to get the details of a coin history
                 // Performs matching based on the currency name and the timestamp
-                return db.conn.collection(this.name)
+                db.conn.collection(this.name)
                     .findOne({
                         currency: coin,
                         timestamp: timestamp
-                    });
+                    }, callback);
             },
-            fetchAll: function () {
+            fetchAll: function (coin, callback) {
                 // Method to fetch all coin history records
-                return db.conn.collection(this.name)
-                    .find({});
+                db.conn.collection(this.name)
+                    .find({
+                        currency: coin
+                    }).toArray(callback);
             },
-            update: function (data, oldData) {
+            update: function (data, oldData, callback) {
                 // Method to update a coin history record
                 // oldData param contains old value to be updated
                 // Performs matching based on the currency name and the timestamp
                 // Accepts data param that contains the new values
-                return db.conn.collection(this.name)
+                db.conn.collection(this.name)
                     .replaceOne({
                         currency: oldData.currency,
                         timestamp: oldData.timestamp
-                    }, data
+                    },
+                    data,
+                    callback
                 );
             }
         },
@@ -383,9 +394,258 @@ app.get("/db/users/find", function (req, res) {
                 }
             } else {
                 console.error(err);
+                respondFailure(req, res, err);
             }
 
             db.conn.close();
         });
     });
+});
+
+// Setup the endpoint for user insert
+app.post("/db/users/add", function (req, res) {
+    var user = req.body;
+    
+    db.connect(function () {
+        db.collections.users.insert(user, function (err, result) {
+            if (result) {
+                respondSuccess(req, res, result)
+            } else {
+                console.error(err);
+                respondFailure(req, res, err)
+            }
+        });
+
+        db.conn.close();
+    })
+});
+
+// Setup the endpoint for setting the user inactive
+app.post("/db/users/:username/deactivate", function (req, res) {
+    var username = req.params.username;
+
+    db.connect(function () {
+        db.collections.users.setInactive(username, function (err, result) {
+            if (result) {
+                respondSuccess(req, res, result)
+            } else {
+                console.error(err);
+                respondFailure(req, res, err)
+            }
+        });
+
+        db.conn.close();
+    })
+});
+
+// Setup the endpoint for getting all users
+app.get("/db/users/all", function (req,res) {
+    db.connect(function () {
+        db.collections.users.fetchAll(function (err, result) {
+            if (result) {
+                respondSuccess(req, res, result)
+            } else {
+                console.error(err);
+                respondFailure(req, res, err)
+            }
+        });
+
+        db.conn.close();
+    })
+});
+
+// Setup the endpoint for updating a user value
+app.post("/db/users/:username/update", function (req, res) {
+    var username = req.params.username;
+    var newValue = req.body;
+
+    db.connect(function () {
+        db.collections.users.update(username, newValue, function (err, result) {
+            if (result) {
+                respondSuccess(req, res, result)
+            } else {
+                console.error(err);
+                respondFailure(req, res, err)
+            }
+        });
+
+        db.conn.close();
+    })
+});
+
+// Setup the endpoint for adding a new trade history record
+app.post("/db/trade/add", function (req, res) {
+    var trade = req.body;
+
+    db.connect(function () {
+        db.collections.tradeHistory.insert(trade, function (err, result) {
+            if (result) {
+                respondSuccess(req, res, result)
+            } else {
+                console.error(err);
+                respondFailure(req, res, err)
+            }
+        });
+
+        db.conn.close();
+    })
+});
+
+// Setup the endpoint for deleting a trade history record
+app.post("/db/trade/delete", function (req,res) {
+    var trade = req.body;
+
+    db.connect(function () {
+        db.collections.tradeHistory.delete(trade, function (err, result) {
+            if (result) {
+                respondSuccess(req, res, result)
+            } else {
+                console.error(err);
+                respondFailure(req, res, err)
+            }
+        });
+
+        db.conn.close();
+    })
+});
+
+// Setup the endpoint for fetching a trade history record
+app.get("/db/trade/fetch", function (req, res) {
+    var username = req.query.un;
+    var src = req.query.src;
+    var ts = req.query.ts;
+
+    db.connect(function () {
+        db.collections.tradeHistory.fetch(username, src, ts, function (err, result) {
+            if (result) {
+                respondSuccess(req, res, result)
+            } else {
+                console.error(err);
+                respondFailure(req, res, err)
+            }
+        });
+
+        db.conn.close();
+    })
+});
+
+// Setup the endpoint for fetching all trade history records for current user
+app.get("/db/trade/fetch/all", function (req, res) {
+    var username = req.query.un;
+
+    db.connect(function () {
+        db.collections.tradeHistory.fetchAll(username, function (err, result) {
+            if (result) {
+                respondSuccess(req, res, result)
+            } else {
+                console.error(err);
+                respondFailure(req, res, err)
+            }
+        });
+
+        db.conn.close();
+    })
+});
+
+// Setup the endpoint for updating an existing history record
+app.post("/db/trade/update", function (req,res) {
+    var trade = req.body.oldData;
+    var newValue = req.body.newValue;
+
+    db.connect(function () {
+        db.collections.tradeHistory.update(newValue, trade, function (err, result) {
+            if (result) {
+                respondSuccess(req, res, result)
+            } else {
+                console.error(err);
+                respondFailure(req, res, err)
+            }
+        });
+
+        db.conn.close();
+    })
+});
+
+// Setup the endpoint for adding a new coin history record
+app.post("/db/history/add", function (req,res) {
+    var history = req.body;
+
+    db.connect(function () {
+        db.collections.coinHistory.insert(history, function (err, result) {
+            if (result) {
+                respondSuccess(req, res, result)
+            } else {
+                console.error(err);
+                respondFailure(req, res, err)
+            }
+        });
+
+        db.conn.close();
+    })
+});
+
+// Setup the endpoint for deleting a coin history record
+app.post("/db/history/delete/:currency/:timestamp", function (req,res) {
+    var src = req.params.currency;
+    var ts = req.params.timestamp;
+
+    db.connect(function () {
+        db.collections.coinHistory.delete({
+            currency: src,
+            timestamp: ts
+        }, function (err, result) {
+            if (result) {
+                respondSuccess(req, res, result)
+            } else {
+                console.error(err);
+                respondFailure(req, res, err)
+            }
+        });
+
+        db.conn.close();
+    })
+});
+
+// Setup the endpoint for fetching a coin history record
+// @TODO - Identify if this is necessary...
+
+// Setup the endpoint for fetching all coin history records for the given coin
+app.get("/db/history/all", function (req,res) {
+    var src = req.query.src;
+
+    db.connect(function () {
+        db.collections.coinHistory.fetchAll(src, function (err, result) {
+            if (result) {
+                respondSuccess(req, res, result)
+            } else {
+                console.error(err);
+                respondFailure(req, res, err)
+            }
+        });
+
+        db.conn.close();
+    })
+});
+
+// Setup the endpoint for updating an coin history record
+app.post("/db/history/update/:currency/:timestamp", function (req,res) {
+    var src = req.params.currency;
+    var ts = req.params.timestamp;
+    var newValue = req.body;
+
+    db.connect(function () {
+        db.collections.coinHistory.update({
+            currency: src,
+            timestamp: ts
+        }, function (err, result) {
+            if (result) {
+                respondSuccess(req, res, result)
+            } else {
+                console.error(err);
+                respondFailure(req, res, err)
+            }
+        });
+
+        db.conn.close();
+    })
 });

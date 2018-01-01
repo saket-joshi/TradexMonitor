@@ -13,8 +13,12 @@ app.factory("requestFactory", ["$http", "$q", function($http, $q) {
             url: endpoint
         };
 
-        if (params) {
+        if (method == "GET" && params) {
             config.params = params;
+        }
+
+        if (method == "POST" && params) {
+            config.data = params;
         }
 
         if (headers) {
@@ -39,9 +43,82 @@ app.factory("requestFactory", ["$http", "$q", function($http, $q) {
     requestFactory.getExchange = function (src, dest) {
         return doRespond("GET", API_ENDPOINT + "exchange", { src: src, dest: dest });
     },
-    requestFactory.lookupUser = function (username) {
-        return doRespond("GET", DB_ENDPOINT + "users/find", { un: username });
-    }
+    requestFactory.users = {
+        list: function () {
+            return doRespond("GET", DB_ENDPOINT + "users/all");
+        },
+        find: function (username) {
+            return doRespond("GET", DB_ENDPOINT + "users/find", { un: username });
+        },
+        add: function (data) {
+            return doRespond("POST", DB_ENDPOINT + "users/add", data);
+        },
+        setInactive: function (username) {
+            return doRespond("POST", DB_ENDPOINT + "users/" + username);
+        },
+        update: function (username, data) {
+            return doRespond("POST", DB_ENDPOINT + "users/" + username, data);
+        }
+    },
+    requestFactory.trade = {
+        add: function (data) {
+            return doRespond("POST", DB_ENDPOINT + "trade/add", data);
+        },
+        delete: function (type, src, dest, ts) {
+            return doRespond("POST",
+                DB_ENDPOINT + "trade/delete",
+                {
+                    transactionType: type,
+                    source: src,
+                    dest: dest,
+                    timestamp: ts
+                }
+            );
+        },
+        find: function (username, src, ts) {
+            return doRespond("GET",
+                DB_ENDPOINT + "trade/fetch?un=" + username, { src: src, ts: ts }
+            );
+        },
+        list: function (username) {
+            return doRespond("GET",
+                DB_ENDPOINT + "trade/fetch", { un: username }
+            );
+        },
+        update: function (oldVal, newVal) {
+            return doRespond("POST",
+                DB_ENDPOINT + "trade/update",
+                {
+                    trade: oldVal,
+                    newValue: newVal
+                }
+            );
+        }
+    },
+    requestFactory.history = {
+        add: function (history) {
+            return doRespond("POST",
+                DB_ENDPOINT + "history/add",
+                history
+            );
+        },
+        delete: function (currency, ts) {
+            return doRespond("POST",
+                DB_ENDPOINT + "history/delete/" + currency + "/" + ts
+            );
+        },
+        list: function (currency) {
+            return doRespond("GET",
+                DB_ENDPOINT + "history/all", { src: currency }
+            );
+        },
+        update: function (currency, ts, newVal) {
+            return doRespond("POST",
+                DB_ENDPOINT + "history/delete/" + currency + "/" + ts,
+                newVal
+            );
+        }
+    };
 
     return requestFactory;
 
