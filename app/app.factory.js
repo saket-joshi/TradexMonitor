@@ -50,6 +50,12 @@ app.factory("requestFactory", ["$http", "$q", function($http, $q) {
         find: function (username) {
             return doRespond("GET", DB_ENDPOINT + "users/find", { un: username });
         },
+        login: function (username, password) {
+            return doRespond("GET",
+                DB_ENDPOINT + "users/find",
+                { un: username, pw: password }
+            );
+        },
         add: function (data) {
             return doRespond("POST", DB_ENDPOINT + "users/add", data);
         },

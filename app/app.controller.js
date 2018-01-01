@@ -2,7 +2,7 @@ app.controller("TickerController", ["$scope", "requestFactory", function ($scope
 
     // Session information object
     $scope.session = {};
-    $scope.session.user = {};
+    $scope.session.user = { __isValid: true, __isNew: false };
 
     // Method to show signin popup
     $scope.showSigninPopup = function () {
@@ -10,10 +10,39 @@ app.controller("TickerController", ["$scope", "requestFactory", function ($scope
     }
 
     // Method to lookup for a particular user
-    $scope.lookupUser = function (username) {
-        requestFactory.lookupUser(username)
+    $scope.lookupUser = function () {
+        var username = $scope.session.user.userName;
+
+        if (!username) return;
+
+        requestFactory.users.find(username)
             .then(function success (data) {
-                $scope.session.user.__valid = data.__valid;
+                $scope.session.user.__isValid = data.__valid;
+            }, function error (err) {
+
+            });
+    }
+
+    // Method to signin the user
+    $scope.doSignin = function () {
+        if (!$scope.session.user.__isValid) return;
+        if (!$scope.session.user.password) return;
+
+        var username = $scope.session.user.userName;
+        var password = $scope.session.user.password;
+
+        requestFactory.users.login(username, password)
+            .then(function success (data) {
+                if (data.__login) {
+                    $scope.session.user.name = data.user.name;
+                    $scope.session.user.email = data.user.email;
+                    $scope.session.user.status = data.user.status;
+                } else {
+                    $scope.session.message = {
+                        header: "Login failed!",
+                        message: "Check your username/password combo"
+                    };
+                }
             }, function error (err) {
 
             });

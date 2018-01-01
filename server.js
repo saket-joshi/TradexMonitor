@@ -383,11 +383,22 @@ app.get("/api/sell", function (req, res) {
 // Setup the endpoint for user lookup
 app.get("/db/users/find", function (req, res) {
     var username = req.query.un;
+    var pw = req.query.pw;
     
     db.connect(function () {
         db.collections.users.fetch(username, function (err, result) {
-            if (result) {
-                if (result._id) {
+            if (!err) {
+                if (pw && result) {
+                    if (pw == result.password) {
+                        respondSuccess(req, res, { __login: true, user: result });
+                    } else {
+                        respondSuccess(req, res, { __login: false });
+                    }
+                    db.conn.close();
+                    return true;
+                }
+
+                if (result && result._id) {
                     respondSuccess(req, res, { __valid: true });
                 } else {
                     respondSuccess(req, res, { __valid: false });

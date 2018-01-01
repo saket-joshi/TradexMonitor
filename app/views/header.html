@@ -52,18 +52,32 @@
         Sign In
     </div>
     <div class="content">
-        <form class="ui form" novalidate="true" name="signInForm">
+        <form class="ui form"
+            novalidate="true"
+            name="signInForm"
+            ng-class="{ 'error': session.message }">
+            <div class="ui error message" ng-if="session.message">
+                <div class="header">{{ session.message.header }}</div>
+                <p>{{ session.message.message }}</p>
+            </div>
             <div class="fields">
-                <div class="required eight wide field">
+                <div class="required field"
+                    ng-class="{ 'eight wide': session.user.__isNew, 'sixteen wide': !session.user.__isNew}">
                     <label>Username</label>
                     <input type="text"
+                        name="username"
                         ng-model="session.user.userName"
                         ng-blur="lookupUser();"
                         placeholder="Username"
                         required="true">
+                    <span ng-if="!session.user.__isValid">
+                        <label>Looks like the username is not valid.
+                            <a href="#">Create new?</a>
+                        </label>
+                    </span>
                 </div>
                 <div ng-if="session.user.__isNew"
-                    class="required eight wide field">
+                    class="required field" ng-class="{ 'eight wide': session.user.__isNew }">
                     <label>Email address</label>
                     <input type="email"
                         ng-model="session.user.email"
@@ -72,12 +86,16 @@
                 </div>
             </div>
             <div class="fields">
-                <div class="required eight wide field">
+                <div class="required field"
+                    ng-class="{ 'eight wide': session.user.__isNew, 'sixteen wide': !session.user.__isNew}">
                     <label>Password</label>
                     <input type="password"
                         ng-model="session.user.password"
                         placeholder="Password"
                         required="true">
+                    <span ng-if="!session.user.__isNew">
+                        <label><a href='#'>Forgot password?</a></label>
+                    </span>
                 </div>
                 <div ng-if="session.user.__isNew"
                     class="required eight wide field">
@@ -114,15 +132,17 @@
                   <label>I agree to the Terms and Conditions</label>
                 </div>
             </div>
-            
+        </form>
+        <div class="actions">
             <button class="positive ui button"
                 ng-disabled="signInForm.$invalid"
-                ng-if="!session.user.__isNew">Sign In</button>
+                ng-if="!session.user.__isNew"
+                ng-click="doSignin();">Sign In</button>
             
             <button class="positive ui button"
                 ng-if="session.user.__isNew">Sign Up</button>
             
             <button class="negative ui button">Cancel</button>
-        </form>
+        </div>
     </div>
 </div>
