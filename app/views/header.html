@@ -49,7 +49,10 @@
 
 <div class="ui modal" id="md-sign-in">
     <div class="header">
-        Sign In
+        <span>Sign In</span>
+        <span class="right-align">
+            <a ng-click="showNewUserFields();">Create new user instead</a>
+        </span>
     </div>
     <div class="content">
         <form class="ui form"
@@ -64,16 +67,25 @@
                 <div class="required field"
                     ng-class="{ 'eight wide': session.user.__isNew, 'sixteen wide': !session.user.__isNew}">
                     <label>Username</label>
-                    <input type="text"
-                        name="username"
-                        ng-model="session.user.userName"
-                        ng-blur="lookupUser();"
-                        placeholder="Username"
-                        required="true">
+                    <div class="ui icon input loading">
+                        <input type="text"
+                            name="username"
+                            ng-model="session.user.userName"
+                            ng-blur="lookupUser();"
+                            placeholder="Username"
+                            required="true"
+                            ng-disabled="__isLoading">
+                            <i class="search icon" ng-if="__isLoading"></i>
+                    </div>
                     <span ng-if="!session.user.__isValid">
                         <label>Looks like the username is not valid.
-                            <a href="#">Create new?</a>
+                            <a ng-click="showNewUserFields();">Create new?</a>
                         </label>
+                    </span>
+                    <span ng-if="session.user.__isNew
+                        && session.user.__isValid
+                        && signInForm.username.$dirty">
+                        <label>Sorry! The username is already taken</label>
                     </span>
                 </div>
                 <div ng-if="session.user.__isNew"
@@ -92,7 +104,8 @@
                     <input type="password"
                         ng-model="session.user.password"
                         placeholder="Password"
-                        required="true">
+                        required="true"
+                        ng-disabled="__isLoading">
                     <span ng-if="!session.user.__isNew">
                         <label><a href='#'>Forgot password?</a></label>
                     </span>
@@ -120,11 +133,12 @@
                         placeholder="Last name">
                 </div>
             </div>
-            <div class="field" ng-if="session.user.__isNew">
+            <div class="required field" ng-if="session.user.__isNew">
                 <label>Password reset key</label>
                 <input type="password"
                     ng-model="session.user.resetKey"
-                    placeholder="Password reset key">
+                    placeholder="Password reset key"
+                    required="true">
             </div>
             <div class="field" ng-if="session.user.__isNew">
                 <div class="ui checkbox">
@@ -140,7 +154,9 @@
                 ng-click="doSignin();">Sign In</button>
             
             <button class="positive ui button"
-                ng-if="session.user.__isNew">Sign Up</button>
+                ng-if="session.user.__isNew"
+                ng-disabled="signInForm.$invalid"
+                ng-click="doSignUp();">Sign Up</button>
             
             <button class="negative ui button">Cancel</button>
         </div>

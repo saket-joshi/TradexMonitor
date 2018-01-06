@@ -1,12 +1,34 @@
-app.controller("TickerController", ["$scope", "requestFactory", function ($scope, requestFactory) {
+app.controller("TickerController", [
+    "$scope",
+    "$rootScope",
+    "requestFactory",
+    function ($scope, $rootScope, requestFactory) {
 
     // Session information object
     $scope.session = {};
     $scope.session.user = { __isValid: true, __isNew: false };
 
+    // Adding UI handlers for request load/complete
+    $rootScope.$on("cfpLoadingBar:started", function () {
+        $scope.__isLoading = true;
+    });
+
+    $rootScope.$on("cfpLoadingBar:completed", function () {
+        $scope.__isLoading = false;
+    });
+
     // Method to show signin popup
     $scope.showSigninPopup = function () {
-        jQ("#md-sign-in").modal("show");
+        jQ("#md-sign-in")
+            .modal({
+                closable: false,
+                onApprove: function () {
+                    // Override the standard behavior of closing the popup
+                    return false;
+                }
+            })
+            .modal("show");
+        $scope.session.user = { __isValid: true, __isNew: false };
     }
 
     // Method to lookup for a particular user
@@ -37,6 +59,8 @@ app.controller("TickerController", ["$scope", "requestFactory", function ($scope
                     $scope.session.user.name = data.user.name;
                     $scope.session.user.email = data.user.email;
                     $scope.session.user.status = data.user.status;
+                    jQ("#md-sign-in").modal("hide");
+                    $scope.session.message = null;
                 } else {
                     $scope.session.message = {
                         header: "Login failed!",
@@ -46,6 +70,11 @@ app.controller("TickerController", ["$scope", "requestFactory", function ($scope
             }, function error (err) {
 
             });
+    }
+
+    // Method to set the form to show new user fields
+    $scope.showNewUserFields = function () {
+        $scope.session.user.__isNew = true;
     }
 
     // Initialize all the modules in the app
