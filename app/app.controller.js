@@ -72,6 +72,23 @@ app.controller("TickerController", [
             });
     }
 
+    // Method to add a new user
+    $scope.doSignUp = function () {
+        var user = $scope.session.user;
+        user.firstName = user.firstName || "";
+        user.lastName = user.lastName || "";
+
+        var newUser = {
+            name: user.firstName + user.lastName,
+            username: user.userName,
+            password: user.password,
+            email: user.email,
+            resetSecret: user.resetKey,
+            status: "Unconfirmed",
+            lastLogin: new Date().getTime()
+        };
+    }
+
     // Method to set the form to show new user fields
     $scope.showNewUserFields = function () {
         $scope.session.user.__isNew = true;
